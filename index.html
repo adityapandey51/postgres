@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO LIST</title>
+</head>
+<body>
+    <div>
+        Hello this is a todo list
+    </div>
+    <div>
+        <ol class="olist">
+
+        </ol>
+    </div>
+    <button id = 'btnCreate'>Add ToDO!</button>
+    <button id = 'btnUpdate'>UPDATE A ToDO!</button>
+
+
+</body>
+<script>
+    const upBtn=document.getElementById("btnUpdate")
+    upBtn.addEventListener("click",async(e)=>{
+        const jsonRequest={};
+        jsonRequest.id=prompt("Enter the id of the todo")
+        jsonRequest.todo=prompt("Enter the new todo")
+        let result=await fetch("http://localhost:8080/todos",{method:"PUT",
+        headers:{"content-type":"application/json"},body:JSON.stringify(jsonRequest)});
+        result=await result.json()
+        readTodos()
+        if(!result.success) alert ("FAILED !")
+    })
+    const btn= document.getElementById("btnCreate")
+    btn.addEventListener("click",async e=> {
+                    const jsonRequest = {}
+                    jsonRequest.todo = prompt("Enter your todo item!")
+                    let result = await fetch("http://localhost:8080/todos", {method: "POST", 
+                    headers: {"content-type": "application/json"}, body: JSON.stringify(jsonRequest) })
+                    result = await result.json();
+                    readTodos()
+                    if (!result.success)  alert("FAILED! ")
+
+     })
+
+     readTodos();
+
+    const readTodos=async()=>{
+        try {
+            const result=await fetch("http://localhost:8080/todos",{method:"GET"})
+            const todos=await result.json()
+            const olTodo = document.getElementById("olist");
+            while(olTodo.firstChild) olTodo.removeChild(olTodo.firstChild)
+
+            todos.forEach(todo => {
+                const li = document.createElement("li")
+                li.textContent = t.text;
+                li.id = t.id;
+
+                li.addEventListener("click", async e => {
+                    const jsonRequest = {}
+                    jsonRequest.id = e.target.id;
+                    let result = await fetch("http://localhost:8080/todos", {method: "DELETE", 
+                    headers: {"content-type": "application/json"}, body: JSON.stringify(jsonRequest) })
+                    result  = await result.json();
+                    readTodos();
+                    if (!result.success)  alert("FAILED! ")
+    
+                })
+                olTodo.appendChild(li)
+                
+            });
+
+        } catch (error) {
+            console.log("error in reading todos")
+        }
+    }
+</script>
+</html>
